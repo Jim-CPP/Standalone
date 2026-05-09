@@ -34,6 +34,22 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMessage, WPARAM wPara
 	// Select message
 	switch( uMessage )
 	{
+		case WM_GETMINMAXINFO:
+		{
+			// A get min max info message
+			MINMAXINFO FAR *lpMinMaxInfo;
+
+			// Get min max info structure
+			lpMinMaxInfo = ( MINMAXINFO FAR * )lParam;
+
+			// Update min max info structure
+			lpMinMaxInfo->ptMinTrackSize.x = MAIN_WINDOW_MINIMUM_WIDTH;
+			lpMinMaxInfo->ptMinTrackSize.y = MAIN_WINDOW_MINIMUM_HEIGHT;
+
+			// Break out of switch
+			break;
+
+		} // End of a get min max info message
 		case WM_COMMAND:
 		{
 			// A command message
@@ -81,6 +97,42 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMessage, WPARAM wPara
 			break;
 
 		} // End of a command message
+		case WM_SYSCOMMAND:
+		{
+			// A system command message
+
+			// Select system command
+			switch( LOWORD( wParam ) )
+			{
+				case IDM_HELP_ABOUT:
+				{
+					// A help about system command
+
+					// Show about message
+					ShowAboutMessage( hWndMain );
+
+					// Break out of switch
+					break;
+
+				} // End of a help about system command
+				default:
+				{
+					// Default system command
+
+					// Call default procedure
+					lResult = DefWindowProc( hWndMain, uMessage, wParam, lParam );
+
+					// Break out of switch
+					break;
+
+				} // End of default system command
+
+			}; // End of selection for system command
+
+			// Break out of switch
+			break;
+
+		} // End of a system command message
 		case WM_CONTEXTMENU:
 		{
 			// A context menu message
@@ -175,6 +227,57 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE, LPTSTR, int nCmdShow )
 		if( hWndMain )
 		{
 			// Successfully created main window
+			HMENU hMenuSystem;
+			LPWSTR *lpszArgumentList;
+			int nArgumentCount;
+
+			// Get system menu
+			hMenuSystem = GetSystemMenu( hWndMain, FALSE );
+
+			// Add separator item to system menu
+			InsertMenu( hMenuSystem, SYSTEM_MENU_SEPARATOR_ITEM_POSITION, ( MF_BYPOSITION | MF_SEPARATOR ), 0, NULL );
+
+			// Add about item to system menu
+			InsertMenu( hMenuSystem, SYSTEM_MENU_ABOUT_ITEM_POSITION, MF_BYPOSITION, IDM_HELP_ABOUT, SYSTEM_MENU_ABOUT_ITEM_TEXT );
+
+			// Get argument list
+			lpszArgumentList = CommandLineToArgvW( GetCommandLineW(), &nArgumentCount );
+
+			// Ensure that argument list was got
+			if( lpszArgumentList )
+			{
+				// Successfully got argument list
+				int nWhichArgument;
+				int nSizeNeeded;
+				int nWideArgumentLength;
+
+				// Allocate string memory
+				LPTSTR lpszArgument = new char[ STRING_LENGTH ];
+
+				// Loop through arguments
+				for( nWhichArgument = 1; nWhichArgument < nArgumentCount; nWhichArgument ++ )
+				{
+					// Get wide argument length
+					nWideArgumentLength = lstrlenW( lpszArgumentList[ nWhichArgument ] );
+
+					// Get size required for argument
+					nSizeNeeded = WideCharToMultiByte( CP_UTF8, 0, lpszArgumentList[ nWhichArgument ], nWideArgumentLength, NULL, 0, NULL, NULL );
+
+					// Convert argument to ansi
+					WideCharToMultiByte( CP_UTF8, 0, lpszArgumentList[ nWhichArgument ], nWideArgumentLength, lpszArgument, nSizeNeeded, NULL, NULL );
+
+					// Terminate argument
+					lpszArgument[ nSizeNeeded ] = ( char )NULL;
+
+					// Display argument
+					MessageBox( NULL, lpszArgument, INFORMATION_MESSAGE_CAPTION, ( MB_OK | MB_ICONINFORMATION ) );
+
+				}; // End of loop through arguments
+
+				// Free string memory
+				delete [] lpszArgument;
+
+			} // End of successfully got argument list
 
 			// Show main window
 			ShowWindow( hWndMain, nCmdShow );

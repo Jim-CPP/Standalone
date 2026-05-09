@@ -23,6 +23,13 @@
 #define MAIN_WINDOW_TEXT														"Standalone"
 #define MAIN_WINDOW_STYLE														WS_OVERLAPPEDWINDOW
 
+#define MAIN_WINDOW_MINIMUM_WIDTH												320
+#define MAIN_WINDOW_MINIMUM_HEIGHT												200
+
+#define SYSTEM_MENU_SEPARATOR_ITEM_POSITION										5
+#define SYSTEM_MENU_ABOUT_ITEM_POSITION											6
+#define SYSTEM_MENU_ABOUT_ITEM_TEXT												"About"
+
 #define ABOUT_MESSAGE_TEXT														"Standalone\r\n"					\
 																				"\r\n"								\
 																				"Written by Jim Smith\r\n"			\
