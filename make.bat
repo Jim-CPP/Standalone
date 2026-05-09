@@ -4,4 +4,4 @@ del *.exe
 
 windres Resource.rc -o Resource.o
 
-g++ -mwindows -m64 -static -Wall -Wextra Standalone.cpp StatusBarWindow.cpp Resource.o -o Standalone.exe
+g++ -mwindows -m64 -static -Wall -Wextra Standalone.cpp ListViewWindow.cpp StatusBarWindow.cpp Resource.o -o Standalone.exe

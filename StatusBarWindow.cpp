@@ -3,14 +3,14 @@
 #include "StatusBarWindow.h"
 
 // Global variables
-HWND g_hWndStatusBar;
+static HWND g_hWndStatusBar;
 
 BOOL StatusBarWindowCreate( HWND hWndParent, HINSTANCE hInstance, HFONT hFont )
 {
 	BOOL bResult = FALSE;
 
 	// Create status bar window
-	g_hWndStatusBar = CreateWindowEx( STATUS_BAR_WINDOW_EXTENDED_STYLE, STATUSCLASSNAME, STATUS_BAR_WINDOW_TEXT, STATUS_BAR_WINDOW_STYLE, 0, 0, 0, 0, hWndParent, ( HMENU )NULL, hInstance, NULL );
+	g_hWndStatusBar = CreateWindowEx( STATUS_BAR_WINDOW_EXTENDED_STYLE, STATUS_BAR_WINDOW_CLASS_NAME, STATUS_BAR_WINDOW_TEXT, STATUS_BAR_WINDOW_STYLE, 0, 0, 0, 0, hWndParent, ( HMENU )NULL, hInstance, NULL );
 
 	// Ensure that status bar window was created
 	if( g_hWndStatusBar )
@@ -28,6 +28,13 @@ BOOL StatusBarWindowCreate( HWND hWndParent, HINSTANCE hInstance, HFONT hFont )
 	return bResult;
 
 } // End of function StatusBarWindowCreate
+
+BOOL StatusBarWindowGetWindowRect( LPRECT lpRect )
+{
+	// Get status bar window rect
+	return GetWindowRect( g_hWndStatusBar, lpRect );
+
+} // End of function StatusBarWindowGetWindowRect
 
 BOOL StatusBarWindowSetText( LPCTSTR lpszStatusText )
 {

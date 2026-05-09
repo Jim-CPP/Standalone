@@ -46,15 +46,19 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMessage, WPARAM wPara
 			// Get font
 			hFont = ( HFONT )GetStockObject( DEFAULT_GUI_FONT );
 
-			// Create status bar window
-			if( StatusBarWindowCreate( hWndMain, hInstance, hFont ) )
+			// Create list view window
+			if( ListViewWindowCreate( hWndMain, hInstance, hFont ) )
 			{
-				// Successfully created status bar window
+				// Successfully created list view window
 
-				// Add text to status bar window
-				StatusBarWindowSetText( "Hello" );
+				// Create status bar window
+				if( StatusBarWindowCreate( hWndMain, hInstance, hFont ) )
+				{
+					// Successfully created status bar window
 
-			} // End of successfully created status bar window
+				} // End of successfully created status bar window
+
+			} // End of successfully created list view window
 
 			// Break out of switch
 			break;
@@ -63,9 +67,28 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMessage, WPARAM wPara
 		case WM_SIZE:
 		{
 			// A size message
+			int nClientWidth;
+			int nClientHeight;
+			RECT rcStatus;
+			int nStatusWindowHeight;
+			int nListViewWindowHeight;
+
+			// Store client width and height
+			nClientWidth	= ( int )LOWORD( lParam );
+			nClientHeight	= ( int )HIWORD( lParam );
 
 			// Size status bar window
 			StatusBarWindowSize();
+
+			// Get status window size
+			StatusBarWindowGetWindowRect( &rcStatus );
+
+			// Calculate window sizes
+			nStatusWindowHeight		= ( rcStatus.bottom - rcStatus.top );
+			nListViewWindowHeight	= ( nClientHeight - nStatusWindowHeight );
+
+			// Move list box window
+			ListViewWindowMove( 0, 0, nClientWidth, nListViewWindowHeight, TRUE );
 
 			// Break out of switch
 			break;
