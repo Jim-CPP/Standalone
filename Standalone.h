@@ -9,6 +9,8 @@
 #include "Ascii.h"
 #include "Common.h"
 
+#include "StatusBarWindow.h"
+
 #define MAIN_WINDOW_CLASS_NAME													"Main Standalone Window Class"
 
 #define MAIN_WINDOW_CLASS_STYLE													0
