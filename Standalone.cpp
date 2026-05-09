@@ -2,6 +2,31 @@
 
 #include "Standalone.h"
 
+int ShowAboutMessage( HWND hWndMain )
+{
+	int nResult = 0;
+
+	MSGBOXPARAMS mbp;
+
+	// Clear message box parameter structure
+	ZeroMemory( &mbp, sizeof( mbp ) );
+
+	// Initialise message box parameter structure
+	mbp.cbSize		= sizeof( MSGBOXPARAMS );
+	mbp.hwndOwner	= hWndMain;
+	mbp.hInstance	= NULL; // Note that this must be null to use standard icons
+	mbp.lpszText	= ABOUT_MESSAGE_TEXT;
+	mbp.lpszCaption	= ABOUT_MESSAGE_CAPTION;
+	mbp.dwStyle		= ( MB_OK | MB_USERICON );
+	mbp.lpszIcon	= MAIN_WINDOW_CLASS_ICON_NAME;
+
+	// Show message box
+	nResult = MessageBoxIndirect( &mbp );
+
+	return nResult;
+
+} // End of function ShowAboutMessage
+
 LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARAM lParam )
 {
 	LRESULT lResult = 0;
@@ -9,6 +34,70 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMessage, WPARAM wPara
 	// Select message
 	switch( uMessage )
 	{
+		case WM_COMMAND:
+		{
+			// A command message
+
+			// Select command
+			switch( LOWORD( wParam ) )
+			{
+				case IDM_FILE_EXIT:
+				{
+					// A file exit command
+
+					// Destroy window
+					DestroyWindow( hWndMain );
+
+					// Break out of switch
+					break;
+
+				} // End of a file exit command
+				case IDM_HELP_ABOUT:
+				{
+					// A help about command
+
+					// Show about message
+					ShowAboutMessage( hWndMain );
+
+					// Break out of switch
+					break;
+
+				} // End of a help about command
+				default:
+				{
+					// Default command
+
+					// Call default procedure
+					lResult = DefWindowProc( hWndMain, uMessage, wParam, lParam );
+
+					// Break out of switch
+					break;
+
+				} // End of default command
+
+			}; // End of selection for command
+
+			// Break out of switch
+			break;
+
+		} // End of a command message
+		case WM_CONTEXTMENU:
+		{
+			// A context menu message
+			HMENU hMenuContext;
+			int nMenuLeft	= LOWORD( lParam );
+			int nMenuTop	= HIWORD( lParam );
+
+			// Load context menu
+			hMenuContext = LoadMenu( NULL, MAKEINTRESOURCE( IDR_CONTEXT_MENU ) );
+
+			// Show popup menu
+			TrackPopupMenu( GetSubMenu( hMenuContext, 0 ),  ( TPM_LEFTALIGN | TPM_LEFTBUTTON ), nMenuLeft, nMenuTop, 0, hWndMain, NULL );
+
+			// Break out of switch
+			break;
+
+		} // End of a context menu message
 		case WM_CLOSE:
 		{
 			// A close message
