@@ -5,6 +5,24 @@
 // Global variables
 static HWND g_hWndListView;
 
+BOOL IsListViewWindow( HWND hWndCompare )
+{
+	BOOL bResult = FALSE;
+
+	// See if compare window is list view window
+	if( hWndCompare == g_hWndListView )
+	{
+		// Compare window is list view window
+
+		// Update return value
+		bResult = TRUE;
+
+	} // End of compare window is list view window
+
+	return bResult;
+
+} // End of function IsListViewWindow
+
 int ListViewWindowAddItem( LPCTSTR lpszItemText )
 {
 	int nResult = 0;
@@ -31,6 +49,39 @@ int ListViewWindowAddItem( LPCTSTR lpszItemText )
 	return nResult;
 
 } // End of function ListViewWindowAddItem
+
+int CALLBACK ListViewWindowCompare( LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort )
+{
+	int nResult = 0;
+
+	// Allocate string memory
+	LPTSTR lpszItem1 = new char[ STRING_LENGTH + sizeof( char ) ];
+	LPTSTR lpszItem2 = new char[ STRING_LENGTH + sizeof( char ) ];
+
+	// Get first item text
+	if( ListViewWindowGetItemText( lParam1, lParamSort, lpszItem1 ) )
+	{
+		// Successfully got first item text
+
+		// Get second item text
+		if( ListViewWindowGetItemText( lParam2, lParamSort, lpszItem2 ) )
+		{
+			// Successfully got second item text
+
+			// Compare item texts
+			nResult = lstrcmp( lpszItem1, lpszItem2 );
+
+		} // End of successfully got second item text
+
+	} // End of successfully got first item text
+
+	// Free string memory
+	delete [] lpszItem1;
+	delete [] lpszItem2;
+
+	return nResult;
+
+} // End of function ListViewWindowCompare
 
 BOOL ListViewWindowCreate( HWND hWndParent, HINSTANCE hInstance, HFONT hFont )
 {
@@ -102,6 +153,102 @@ BOOL ListViewWindowGetItemText( int nWhichItem, int nWhichColumn, LPTSTR lpszIte
 	return bResult;
 
 } // End of function ListViewWindowAddItem
+
+LRESULT ListViewWindowHandleNotifyMessage( HWND hWndMain, WPARAM wParam, LPARAM lParam, BOOL( *lpSelectionChangeFunction )( LPCTSTR lpszItemText ) )
+{
+	LRESULT lResult = 0;
+
+	LPNMLISTVIEW lpNmListView;
+
+	// Get list view notification message handler
+	lpNmListView = ( LPNMLISTVIEW )lParam;
+
+	// Select list view window notification code
+	switch( lpNmListView->hdr.code )
+	{
+		case LVN_COLUMNCLICK:
+		{
+			// A column click notify message
+
+			// Sort the list view
+			SendMessage( g_hWndListView, LVM_SORTITEMSEX, ( WPARAM )lpNmListView->iSubItem, ( LPARAM )&ListViewWindowCompare );
+
+			// Break out of switch
+			break;
+
+		} // End of a column click notify message
+		case LVN_ITEMCHANGED:
+		{
+			// A list view window item changed notification code
+
+			// See if selection has changed to selected
+			if( ( lpNmListView->uNewState ^ lpNmListView->uOldState ) & LVIS_SELECTED )
+			{
+				// Selection has changed to selected
+
+				// Allocate string memory
+				LPTSTR lpszItemText = new char[ STRING_LENGTH + sizeof( char ) ];
+
+				// Get item text
+				if( ListViewWindowGetItemText( lpNmListView->iItem, lpNmListView->iSubItem, lpszItemText ) )
+				{
+					// Successfully got item text
+
+					// Call selection changed function with item
+					( *lpSelectionChangeFunction )( lpszItemText );
+
+				} // End of successfully got item text
+
+				// Free string memory
+				delete [] lpszItemText;
+
+			} // End of selection has changed to selected
+
+			// Break out of switch
+			break;
+
+		} // End of a list view window item changed notification code
+		case NM_DBLCLK:
+		{
+			// A double click notification code
+
+			// Allocate string memory
+			LPTSTR lpszItemText = new char[ STRING_LENGTH + sizeof( char ) ];
+
+			// Get item text
+			if( ListViewWindowGetItemText( lpNmListView->iItem, lpNmListView->iSubItem, lpszItemText ) )
+			{
+				// Successfully got item text
+
+				// Display item text
+				MessageBox( hWndMain, lpszItemText, INFORMATION_MESSAGE_CAPTION, ( MB_OK | MB_ICONINFORMATION ) );
+
+			} // End of successfully got item text
+
+			// Free string memory
+			delete [] lpszItemText;
+
+			// Break out of switch
+			break;
+
+		} // End of a double click notification code
+		default:
+		{
+			// Default list view window notification code
+
+			// Call default procedure
+			lResult = DefWindowProc( hWndMain, WM_COMMAND, wParam, lParam );
+
+			// Break out of switch
+			break;
+
+		} // End of default list view window notification code
+
+	}; // End of selection for list view window notification code
+
+	return lResult;
+
+} // End of function ListViewWindowHandleNotifyMessage
 
 BOOL ListViewWindowMove( int nLeft, int nTop, int nWidth, int nHeight, BOOL bRepaint )
 {

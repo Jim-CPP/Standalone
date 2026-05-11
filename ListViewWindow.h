@@ -29,11 +29,15 @@ typedef enum
 
 } LIST_VIEW_WINDOW_COLUMNS;
 
+BOOL IsListViewWindow( HWND hWndCompare );
+
 int ListViewWindowAddItem( LPCTSTR lpszItemText );
 
 BOOL ListViewWindowCreate( HWND hWndParent, HINSTANCE hInstance, HFONT hFont );
 
 BOOL ListViewWindowGetItemText( int nWhichItem, int nWhichColumn, LPTSTR lpszItemText );
+
+LRESULT ListViewWindowHandleNotifyMessage( HWND hWndMain, WPARAM wParam, LPARAM lParam, BOOL( *lpSelectionChangeFunction )( LPCTSTR lpszItemText ) );
 
 BOOL ListViewWindowMove( int nLeft, int nTop, int nWidth, int nHeight, BOOL bRepaint );
 

@@ -193,6 +193,36 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMessage, WPARAM wPara
 			break;
 
 		} // End of a system command message
+		case WM_NOTIFY:
+		{
+			// A notify message
+			LPNMLISTVIEW lpNmListView;
+
+			// Get list view notify message handler
+			lpNmListView = ( LPNMLISTVIEW )lParam;
+
+			// See if notify message is from list view window
+			if( IsListViewWindow( lpNmListView->hdr.hwndFrom ) )
+			{
+				// Notify message is from list view window
+
+				// Handle notify message from list view window
+				lResult = ListViewWindowHandleNotifyMessage( hWndMain, wParam, lParam, &StatusBarWindowSetText );
+
+			} // End of notify message is from list view window
+			else
+			{
+				// Notify message is not from list view window
+
+				// Call default window procedure
+				lResult = DefWindowProc( hWndMain, uMessage, wParam, lParam );
+
+			} // End of notify message is not from list view window
+
+			// Break out of switch
+			break;
+
+		} // End of a notify message
 		case WM_CONTEXTMENU:
 		{
 			// A context menu message
